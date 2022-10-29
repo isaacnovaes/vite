@@ -1,0 +1,10 @@
+__tests__
+.bundle
+android
+ios
+node_modules
+.buckconfig
+.ruby-version
+.watchmanconfig
+app.json
+Gemfile
