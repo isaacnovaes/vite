@@ -45,6 +45,8 @@ export type StackScreenLoginProps = NativeStackScreenProps<
     'Login'
 >;
 
+export type StackScreenLoginPropsNavHook = StackScreenLoginProps['navigation'];
+
 export type StackScreenSignUpProps = NativeStackScreenProps<
     StackScreens,
     'SignUp'

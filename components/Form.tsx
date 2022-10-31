@@ -34,9 +34,7 @@ const styles = StyleSheet.create({
 
 const Form = (props: {
     type: 'LogIn' | 'SignUp' | 'CreateRoom';
-    onLogIn?: (
-        data: Omit<FormState, 'nickName' | 'password' | 'roomId'>
-    ) => void;
+    onLogIn?: (data: Omit<FormState, 'name' | 'nickName' | 'roomId'>) => void;
     onSignUp?: (data: Omit<FormState, 'nickName' | 'roomId'>) => void;
     onCreateRoom?: (
         data: Omit<FormState, 'name' | 'password' | 'email'>
@@ -165,8 +163,8 @@ const Form = (props: {
 
                         if (props.type === 'LogIn' && props.onLogIn) {
                             props.onLogIn({
-                                name: formState.name,
                                 email: formState.email,
+                                password: formState.password,
                             });
                         }
                         if (props.type === 'SignUp' && props.onSignUp) {

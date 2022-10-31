@@ -3,8 +3,13 @@ import GeneralScreenContainer from '../components/GeneralScreenContainer';
 import ScreenIconText from '../components/UI/ScreenIconText';
 import { CredentialsIcon } from '../icons/icons';
 import { StackScreenLoginProps } from '../types/navigation';
+import { signIn } from '../firebase';
+import { Context } from '../context/ContextProvider';
+import { useContext } from 'react';
 
 const LogInScreen = (props: StackScreenLoginProps) => {
+    const { dispatch } = useContext(Context);
+
     return (
         <GeneralScreenContainer>
             <ScreenIconText
@@ -15,8 +20,17 @@ const LogInScreen = (props: StackScreenLoginProps) => {
             />
             <Form
                 type='LogIn'
-                onLogIn={() => {
+                onLogIn={async ({ email, password }) => {
                     //TODO => Handle access to protected screens
+                    try {
+                        const userCredentials = await signIn(email, password);
+                        dispatch({
+                            type: 'SET_USER',
+                            user: { email, id: userCredentials.user.uid },
+                        });
+                    } catch (error) {
+                        console.log(JSON.stringify(error));
+                    }
                     props.navigation.replace('CreateRoom');
                 }}
             />
