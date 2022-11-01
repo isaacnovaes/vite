@@ -14,18 +14,13 @@ import SingUpScreen from './screens/SingUpScreen';
 import CreateRoomScreen from './screens/CreateRoomScreen';
 import BottomTabsScreenContainer from './screens/BottomTabs/BottomTabsScreenContainer';
 import { colors } from './Constants/colors';
-import { Context, ContextProvider } from './context/ContextProvider';
-import { useContext } from 'react';
+import { ContextProvider } from './context/ContextProvider';
 
 const Stack = createNativeStackNavigator<StackScreens>();
 
-const AppContainer = () => {
-    const {
-        state: { user },
-    } = useContext(Context);
-
+const App = () => {
     return (
-        <>
+        <ContextProvider>
             <StatusBar barStyle={'light-content'} />
             <NavigationContainer>
                 <Stack.Navigator
@@ -109,14 +104,6 @@ const AppContainer = () => {
                     />
                 </Stack.Navigator>
             </NavigationContainer>
-        </>
-    );
-};
-
-const App = () => {
-    return (
-        <ContextProvider>
-            <AppContainer />
         </ContextProvider>
     );
 };

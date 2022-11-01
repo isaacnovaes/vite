@@ -4,36 +4,117 @@ import GeneralScreenContainer from '../components/GeneralScreenContainer';
 import Form from '../components/Form';
 import { StackScreenSignUpProps } from '../types/navigation';
 import { signUp } from '../firebase';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Context } from '../context/ContextProvider';
+import CustomKeyboardAvoidingView from '../components/CustomKeyboardAvoidingView';
+import Loading from '../components/Loading';
+import Error from '../components/Error';
 
 const SingUpScreen = (props: StackScreenSignUpProps) => {
     const { dispatch } = useContext(Context);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState({ state: false, message: '' });
     return (
         <GeneralScreenContainer>
-            <ScreenIconText
-                label='Enter your credentials'
-                labelStyle={{ fontSize: 25 }}
-                iconComponent={<CredentialsIcon />}
-                containerStyle={{ height: 150, marginTop: 20 }}
-            />
-            <Form
-                type='SignUp'
-                onSignUp={async ({ name, email, password }) => {
-                    //TODO => Handle access to protected screens
-                    try {
-                        const userCredentials = await signUp(email, password);
+            <CustomKeyboardAvoidingView>
+                <ScreenIconText
+                    label='Enter your credentials'
+                    labelStyle={{ fontSize: 25 }}
+                    iconComponent={<CredentialsIcon />}
+                    containerStyle={{ height: 150, marginTop: 10 }}
+                />
+                <Form
+                    type='SignUp'
+                    onSignUp={async ({ name, email, password }) => {
+                        if (!name) {
+                            setError({
+                                message: 'Please, enter a name',
+                                state: true,
+                            });
+                            return;
+                        }
 
-                        dispatch({
-                            type: 'SET_USER',
-                            user: { email, id: userCredentials.user.uid },
-                        });
-                        props.navigation.replace('CreateRoom');
-                    } catch (error) {
-                        console.log(JSON.stringify(error));
-                    }
-                }}
-            />
+                        if (!email) {
+                            setError({
+                                message: 'Please, enter an email',
+                                state: true,
+                            });
+                            return;
+                        }
+
+                        if (!password) {
+                            setError({
+                                message: 'Please, enter a password',
+                                state: true,
+                            });
+                            return;
+                        }
+
+                        setIsLoading(true);
+                        try {
+                            const userCredentials = await signUp(
+                                email,
+                                password
+                            );
+
+                            dispatch({
+                                type: 'SET_USER',
+                                user: { email, id: userCredentials.user.uid },
+                            });
+                            props.navigation.replace('CreateRoom');
+                        } catch (e: any) {
+                            switch (e.code) {
+                                case 'auth/invalid-email': {
+                                    setError({
+                                        message: 'Please, enter a valid email',
+                                        state: true,
+                                    });
+                                    break;
+                                }
+                                case 'auth/email-already-in-use': {
+                                    setError({
+                                        message:
+                                            'Please, enter another email. This email is already in use',
+                                        state: true,
+                                    });
+                                    break;
+                                }
+                                case 'auth/weak-password': {
+                                    setError({
+                                        message:
+                                            'Please, enter a stronger password',
+                                        state: true,
+                                    });
+                                    break;
+                                }
+                                case 'auth/too-many-requests': {
+                                    setError({
+                                        message:
+                                            'Too many attempts. Please try again later',
+                                        state: true,
+                                    });
+                                    break;
+                                }
+                                default: {
+                                    console.log(JSON.stringify(e));
+                                    setError({
+                                        message: 'Error while signing up',
+                                        state: true,
+                                    });
+                                }
+                            }
+                        }
+                        setIsLoading(false);
+                    }}
+                />
+            </CustomKeyboardAvoidingView>
+            {isLoading ? <Loading /> : null}
+            {error.state ? (
+                <Error
+                    message={error.message}
+                    onPress={() => setError({ state: false, message: '' })}
+                />
+            ) : null}
         </GeneralScreenContainer>
     );
 };

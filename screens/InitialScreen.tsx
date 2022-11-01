@@ -34,7 +34,7 @@ const InitialScreen = (props: StackScreenInitialProps) => {
                 <Button
                     label='Sing up'
                     onPress={() => props.navigation.navigate('SignUp')}
-                    styles={{ marginTop: 30 }}
+                    styles={{ marginTop: 20 }}
                 />
             </View>
         </GeneralScreenContainer>

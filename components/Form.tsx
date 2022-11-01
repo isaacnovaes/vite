@@ -159,8 +159,6 @@ const Form = (props: {
                             : 'Create room'
                     }
                     onPress={() => {
-                        // TODO => Add validation
-
                         if (props.type === 'LogIn' && props.onLogIn) {
                             props.onLogIn({
                                 email: formState.email,
