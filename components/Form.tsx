@@ -53,14 +53,16 @@ const Form = (props: {
             {props.type === 'SignUp' || props.type === 'CreateRoom' ? (
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>
-                        {props.type === 'SignUp' ? 'Name' : 'NickName'}
+                        {props.type === 'SignUp' ? 'Name' : 'Nick name'}
                     </Text>
                     <TextInput
                         autoComplete='name'
                         cursorColor={colors.green}
                         keyboardType='default'
-                        placeholder={`Enter your ${
-                            props.type === 'SignUp' ? 'name' : 'nickName'
+                        placeholder={`Enter ${
+                            props.type === 'SignUp'
+                                ? 'your name'
+                                : 'a nick name'
                         }`}
                         placeholderTextColor={colors.gray}
                         returnKeyType='next'

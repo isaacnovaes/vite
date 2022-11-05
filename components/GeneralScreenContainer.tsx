@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -6,7 +6,14 @@ const styles = StyleSheet.create({
         padding: 20,
     },
 });
-const GeneralScreenContainer = (props: { children: React.ReactNode }) => {
-    return <View style={styles.container}>{props.children}</View>;
+const GeneralScreenContainer = (props: {
+    children: React.ReactNode;
+    viewStyle?: StyleProp<ViewStyle>;
+}) => {
+    return (
+        <View style={[styles.container, props.viewStyle]}>
+            {props.children}
+        </View>
+    );
 };
 export default GeneralScreenContainer;

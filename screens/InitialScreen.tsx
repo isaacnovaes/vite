@@ -10,6 +10,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
     },
+    actionButtonsContainer: {
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    buttonSeparatorDistance: {
+        marginTop: 20,
+    },
 });
 
 const InitialScreen = (props: StackScreenInitialProps) => {
@@ -24,7 +31,7 @@ const InitialScreen = (props: StackScreenInitialProps) => {
                 </Pressable>
             </View>
             <ScreenIconText label='Vite' iconComponent={<ViteLogo />} />
-            <View style={{ alignItems: 'center', marginTop: 20 }}>
+            <View style={styles.actionButtonsContainer}>
                 <Button
                     label='Log in'
                     onPress={() => {
@@ -34,7 +41,7 @@ const InitialScreen = (props: StackScreenInitialProps) => {
                 <Button
                     label='Sing up'
                     onPress={() => props.navigation.navigate('SignUp')}
-                    styles={{ marginTop: 20 }}
+                    styles={styles.buttonSeparatorDistance}
                 />
             </View>
         </GeneralScreenContainer>

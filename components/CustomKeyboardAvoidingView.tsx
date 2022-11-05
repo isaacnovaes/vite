@@ -1,18 +1,20 @@
-import { ScrollView, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { colors } from '../Constants/colors';
-import { useHeaderHeight } from '@react-navigation/elements';
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
+    innerContainer: {
+        flex: 1,
+    },
+});
 
 const CustomKeyboardAvoidingView = (props: { children: React.ReactNode }) => {
-    const headerHeight = useHeaderHeight();
     return (
-        <ScrollView
-            style={{
-                flex: 1,
-                backgroundColor: colors.background,
-            }}
-        >
+        <ScrollView style={styles.container}>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
+                style={styles.innerContainer}
                 keyboardVerticalOffset={20}
                 behavior='position'
             >

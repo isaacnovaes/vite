@@ -9,6 +9,14 @@ import { Context } from '../context/ContextProvider';
 import CustomKeyboardAvoidingView from '../components/CustomKeyboardAvoidingView';
 import Loading from '../components/Loading';
 import Error from '../components/Error';
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+    iconTextContainer: { height: 150, marginTop: 10 },
+    iconTextLabel: {
+        fontSize: 25,
+    },
+});
 
 const SingUpScreen = (props: StackScreenSignUpProps) => {
     const { dispatch } = useContext(Context);
@@ -19,9 +27,9 @@ const SingUpScreen = (props: StackScreenSignUpProps) => {
             <CustomKeyboardAvoidingView>
                 <ScreenIconText
                     label='Enter your credentials'
-                    labelStyle={{ fontSize: 25 }}
+                    labelStyle={styles.iconTextLabel}
+                    containerStyle={styles.iconTextContainer}
                     iconComponent={<CredentialsIcon />}
-                    containerStyle={{ height: 150, marginTop: 10 }}
                 />
                 <Form
                     type='SignUp'

@@ -10,9 +10,8 @@ import { colors } from '../../Constants/colors';
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 60,
+        marginTop: 20,
         alignItems: 'center',
-        height: 200,
     },
     text: {
         fontSize: 50,
@@ -20,7 +19,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         letterSpacing: 2.5,
         color: colors.green,
-        marginTop: 10,
+        marginTop: 5,
     },
 });
 

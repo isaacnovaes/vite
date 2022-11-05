@@ -1,6 +1,11 @@
 import { View, StyleSheet } from 'react-native';
 import TutorialCard from '../components/UI/TutorialCard';
-import { DescriptionIcon, VideoIcon, WhiteboardIcon } from '../icons/icons';
+import {
+    VideoIcon,
+    WhiteboardIcon,
+    PresentationIcon,
+    ViteLogo,
+} from '../icons/icons';
 import GeneralScreenContainer from '../components/GeneralScreenContainer';
 import {
     StackScreenTutorialStepOneProps,
@@ -11,7 +16,7 @@ import {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 110,
+        marginTop: 50,
     },
 });
 
@@ -22,8 +27,8 @@ export const TutorialStepOneScreen = (
         <GeneralScreenContainer>
             <View style={styles.container}>
                 <TutorialCard
-                    iconComponent={<DescriptionIcon />}
-                    heading='Description'
+                    iconComponent={<ViteLogo />}
+                    heading='Vite'
                     text='Vite makes online lectures more interactive. Share your camera, draw on whiteboard and share your presentations'
                     buttonTitle='Next'
                     onPress={() => {
@@ -82,7 +87,7 @@ export const TutorialStepFourScreen = (
         <GeneralScreenContainer>
             <View style={styles.container}>
                 <TutorialCard
-                    iconComponent={<DescriptionIcon />}
+                    iconComponent={<PresentationIcon />}
                     heading='File sharing'
                     text='Share your presentation with others'
                     buttonTitle='Done'

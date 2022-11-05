@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 30,
         color: colors.green,
-        marginTop: 30,
+        marginTop: 20,
     },
     text: {
         width: '80%',
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         color: colors.white,
         textAlign: 'center',
         marginTop: 15,
-        marginBottom: 30,
+        marginBottom: 20,
     },
 });
 

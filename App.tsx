@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'react-native';
+import { StatusBar, LogBox } from 'react-native';
 import InitialScreen from './screens/InitialScreen';
 import {
     TutorialStepOneScreen,
@@ -16,6 +16,10 @@ import BottomTabsScreenContainer from './screens/BottomTabs/BottomTabsScreenCont
 import { colors } from './Constants/colors';
 import { ContextProvider } from './context/ContextProvider';
 
+LogBox.ignoreLogs([
+    'Warning: Async Storage has been extracted from react-native core',
+]);
+
 const Stack = createNativeStackNavigator<StackScreens>();
 
 const App = () => {
@@ -27,7 +31,6 @@ const App = () => {
                     screenOptions={{
                         headerStyle: { backgroundColor: colors.background },
                         headerTintColor: colors.green,
-                        // headerTitleStyle: {}
                         contentStyle: {
                             backgroundColor: colors.background,
                         },
@@ -101,6 +104,7 @@ const App = () => {
                     <Stack.Screen
                         name='BottomTabs'
                         component={BottomTabsScreenContainer}
+                        options={{ headerShown: false }}
                     />
                 </Stack.Navigator>
             </NavigationContainer>
