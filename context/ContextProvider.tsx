@@ -2,9 +2,14 @@ import { useMemo, createContext, useReducer } from 'react';
 interface User {
     id: string;
     email: string;
+    nickName: string;
+    roomId: string;
 }
 
-type ActionType = { type: 'SET_USER'; user: User } | { type: 'LOG_OUT' };
+type ActionType =
+    | { type: 'SET_USER'; user: Omit<User, 'nickName' | 'roomId'> }
+    | { type: 'ADD_ROOM_INFORMATION'; nickName: string; roomId: string }
+    | { type: 'LOG_OUT' };
 
 type StateType = {
     user: User | null;
@@ -18,8 +23,17 @@ const reducer = (state: StateType, action: ActionType): StateType => {
     switch (action.type) {
         case 'SET_USER': {
             return {
-                ...state,
-                user: action.user,
+                user: { ...action.user, nickName: '', roomId: '' },
+            };
+        }
+        case 'ADD_ROOM_INFORMATION': {
+            if (state.user === null) return state;
+            return {
+                user: {
+                    ...state.user,
+                    nickName: action.nickName,
+                    roomId: action.roomId,
+                },
             };
         }
         default:

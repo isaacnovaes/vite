@@ -29,7 +29,7 @@ export const TutorialStepOneScreen = (
                 <TutorialCard
                     iconComponent={<ViteLogo />}
                     heading='Vite'
-                    text='Vite makes online lectures more interactive. Share your camera, draw on whiteboard and share your presentations'
+                    text='Vite makes online lectures more collaborative and immersive. Share your camera, draw on whiteboard and share your presentations'
                     buttonTitle='Next'
                     onPress={() => {
                         props.navigation.navigate('TutorialStepTwo');
@@ -69,7 +69,7 @@ export const TutorialStepThreeScreen = (
                 <TutorialCard
                     iconComponent={<WhiteboardIcon />}
                     heading='Whiteboard'
-                    text='Interactive whiteboard where you and others can draw'
+                    text='Collaborative whiteboard where you and others can draw'
                     buttonTitle='Next'
                     onPress={() => {
                         props.navigation.navigate('TutorialStepFour');

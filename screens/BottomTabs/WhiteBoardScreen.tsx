@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import SignatureScreen, {
     SignatureViewRef,
 } from 'react-native-signature-canvas';
@@ -16,8 +16,14 @@ import { VerticalEllipsis } from '../../icons/icons';
 import { colors } from '../../Constants/colors';
 import { BottomTabWhiteBoardProps } from '../../types/navigation';
 import ColorButton from '../../components/ColorButton';
-import { PenSize } from '../../types/Common';
+import { PenColors, PenSize } from '../../types/Common';
 import PenSizeButton from '../../components/PenSizeButton';
+import {
+    updateWhiteBoard,
+    readWhiteBoard,
+    clearWhiteBoard,
+} from '../../firebase';
+import { Context } from '../../context/ContextProvider';
 
 const styles = StyleSheet.create({
     signatureScreen: {
@@ -81,18 +87,32 @@ const styles = StyleSheet.create({
     },
 });
 
-type PenColors = 'black' | 'yellow' | 'blue' | 'red';
-
 const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     const ref = useRef<SignatureViewRef>(null);
 
-    const [data, setData] = useState('');
+    const {
+        state: { user },
+    } = useContext(Context);
+
+    const [data, setData] = useState('signature');
     const [penColor, setPenColor] = useState<PenColors>('black');
     const [penSize, setPenSize] = useState<PenSize>(1);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
+
+    useEffect(() => {
+        return () => {
+            if (user) {
+                readWhiteBoard(user.roomId, (newSignature) => {
+                    if (newSignature !== null) {
+                        setData(newSignature);
+                    }
+                });
+            }
+        };
+    }, []);
 
     useEffect(() => {
         props.navigation.setOptions({
@@ -114,17 +134,26 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
         });
     }, []);
 
-    const handleOK = (signature: string) => {
-        setData(signature);
+    const handleOK = async (signature: string) => {
+        if (!user) return;
+        try {
+            await updateWhiteBoard(user.roomId, signature);
+        } catch {
+            console.log('error while updating whiteboard');
+        }
     };
 
-    // Called after ref.current.readSignature() reads an empty string
     const handleEnd = () => {
         ref.current?.readSignature();
     };
 
-    const handleClear = () => {
-        setData('');
+    const handleClear = async () => {
+        if (!user) return;
+        try {
+            await clearWhiteBoard(user.roomId);
+        } catch {
+            console.log('error while clearing whiteboard');
+        }
     };
 
     const webStyle = `
@@ -138,84 +167,86 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
 
     return (
         <GeneralScreenContainer>
-            {showSettingsModal ? (
-                <Modal
-                    animationType='slide'
-                    onRequestClose={() => setShowSettingsModal(false)}
-                    presentationStyle='pageSheet'
-                >
-                    <View style={styles.modal}>
-                        <Text style={styles.heading}>Select a color</Text>
-                        <View style={styles.colorsContainer}>
-                            <ColorButton
-                                buttonColor='black'
-                                penColor={penColor}
-                                onPress={() => setPenColor('black')}
-                            />
-                            <ColorButton
-                                buttonColor='blue'
-                                penColor={penColor}
-                                onPress={() => setPenColor('blue')}
-                            />
-                            <ColorButton
-                                buttonColor='yellow'
-                                penColor={penColor}
-                                onPress={() => setPenColor('yellow')}
-                            />
-                            <ColorButton
-                                buttonColor='red'
-                                penColor={penColor}
-                                onPress={() => setPenColor('red')}
-                            />
+            {user ? (
+                showSettingsModal ? (
+                    <Modal
+                        animationType='slide'
+                        onRequestClose={() => setShowSettingsModal(false)}
+                        presentationStyle='pageSheet'
+                    >
+                        <View style={styles.modal}>
+                            <Text style={styles.heading}>Select a color</Text>
+                            <View style={styles.colorsContainer}>
+                                <ColorButton
+                                    buttonColor='black'
+                                    penColor={penColor}
+                                    onPress={() => setPenColor('black')}
+                                />
+                                <ColorButton
+                                    buttonColor='blue'
+                                    penColor={penColor}
+                                    onPress={() => setPenColor('blue')}
+                                />
+                                <ColorButton
+                                    buttonColor='yellow'
+                                    penColor={penColor}
+                                    onPress={() => setPenColor('yellow')}
+                                />
+                                <ColorButton
+                                    buttonColor='red'
+                                    penColor={penColor}
+                                    onPress={() => setPenColor('red')}
+                                />
+                            </View>
+                            <Text
+                                style={[
+                                    styles.heading,
+                                    styles.selectPenSizeTextSeparator,
+                                ]}
+                            >
+                                Change pen size
+                            </Text>
+                            <View style={styles.penSizeContainer}>
+                                <PenSizeButton
+                                    onPress={() => setPenSize(1)}
+                                    penSize={penSize}
+                                    size={1}
+                                />
+                                <PenSizeButton
+                                    onPress={() => setPenSize(3)}
+                                    penSize={penSize}
+                                    size={3}
+                                />
+                                <PenSizeButton
+                                    onPress={() => setPenSize(6)}
+                                    penSize={penSize}
+                                    size={6}
+                                />
+                            </View>
+                            <Pressable
+                                style={styles.pressableContainer}
+                                android_ripple={{ color: colors.gray }}
+                                onPress={() => setShowSettingsModal(false)}
+                            >
+                                <Text style={styles.pressableText}>Save</Text>
+                            </Pressable>
                         </View>
-                        <Text
-                            style={[
-                                styles.heading,
-                                styles.selectPenSizeTextSeparator,
-                            ]}
-                        >
-                            Change pen size
-                        </Text>
-                        <View style={styles.penSizeContainer}>
-                            <PenSizeButton
-                                onPress={() => setPenSize(1)}
-                                penSize={penSize}
-                                size={1}
-                            />
-                            <PenSizeButton
-                                onPress={() => setPenSize(3)}
-                                penSize={penSize}
-                                size={3}
-                            />
-                            <PenSizeButton
-                                onPress={() => setPenSize(6)}
-                                penSize={penSize}
-                                size={6}
-                            />
-                        </View>
-                        <Pressable
-                            style={styles.pressableContainer}
-                            android_ripple={{ color: colors.gray }}
-                            onPress={() => setShowSettingsModal(false)}
-                        >
-                            <Text style={styles.pressableText}>Save</Text>
-                        </Pressable>
-                    </View>
-                </Modal>
-            ) : (
-                <SignatureScreen
-                    ref={ref}
-                    onOK={handleOK}
-                    onEnd={handleEnd}
-                    onClear={handleClear}
-                    minWidth={penSize}
-                    imageType='image/png'
-                    dataURL={data}
-                    penColor={penColor}
-                    style={styles.signatureScreen}
-                    webStyle={webStyle}
-                />
-            )}
+                    </Modal>
+                ) : (
+                    <SignatureScreen
+                        ref={ref}
+                        onOK={handleOK}
+                        onEnd={handleEnd}
+                        onClear={handleClear}
+                        minWidth={penSize}
+                        imageType='image/png'
+                        dataURL={data}
+                        penColor={penColor}
+                        style={styles.signatureScreen}
+                        webStyle={webStyle}
+                    />
+                )
+            ) : null}
         </GeneralScreenContainer>
     );
 };
