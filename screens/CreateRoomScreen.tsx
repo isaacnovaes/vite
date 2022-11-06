@@ -7,7 +7,7 @@ import { Context } from '../context/ContextProvider';
 import { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import CustomKeyboardAvoidingView from '../components/CustomKeyboardAvoidingView';
-import { createRoom, roomExist } from '../firebase';
+import { createRoom, roomExist } from '../firebase/helperFunctions';
 import Loading from '../components/Loading';
 
 const styles = StyleSheet.create({

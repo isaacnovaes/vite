@@ -3,7 +3,7 @@ import GeneralScreenContainer from '../components/GeneralScreenContainer';
 import ScreenIconText from '../components/UI/ScreenIconText';
 import { CredentialsIcon } from '../icons/icons';
 import { StackScreenLoginProps } from '../types/navigation';
-import { signIn } from '../firebase';
+import { signIn } from '../firebase/helperFunctions';
 import { Context } from '../context/ContextProvider';
 import { useContext, useState } from 'react';
 import CustomKeyboardAvoidingView from '../components/CustomKeyboardAvoidingView';

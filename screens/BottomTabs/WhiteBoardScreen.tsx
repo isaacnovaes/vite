@@ -22,7 +22,7 @@ import {
     updateWhiteBoard,
     readWhiteBoard,
     clearWhiteBoard,
-} from '../../firebase';
+} from '../../firebase/helperFunctions';
 import { Context } from '../../context/ContextProvider';
 
 const styles = StyleSheet.create({
