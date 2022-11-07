@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '../Constants/colors';
 import Button from './UI/Button';
 
@@ -24,9 +24,13 @@ const styles = StyleSheet.create({
     },
 });
 
-const Error = (props: { message: string; onPress: () => void }) => {
+const Error = (props: {
+    message: string;
+    onPress: () => void;
+    style?: StyleProp<ViewStyle>;
+}) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, props.style ? props.style : null]}>
             <Text style={[styles.message, styles.title]}>
                 An error occurred!
             </Text>

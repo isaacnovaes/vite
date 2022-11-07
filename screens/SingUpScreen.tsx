@@ -16,6 +16,9 @@ const styles = StyleSheet.create({
     iconTextLabel: {
         fontSize: 25,
     },
+    error: {
+        height: '110%',
+    },
 });
 
 const SingUpScreen = (props: StackScreenSignUpProps) => {
@@ -23,107 +26,114 @@ const SingUpScreen = (props: StackScreenSignUpProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState({ state: false, message: '' });
     return (
-        <GeneralScreenContainer>
-            <CustomKeyboardAvoidingView>
-                <ScreenIconText
-                    label='Enter your credentials'
-                    labelStyle={styles.iconTextLabel}
-                    containerStyle={styles.iconTextContainer}
-                    iconComponent={<CredentialsIcon />}
-                />
-                <Form
-                    type='SignUp'
-                    onSignUp={async ({ name, email, password }) => {
-                        if (!name) {
-                            setError({
-                                message: 'Please, enter a name',
-                                state: true,
-                            });
-                            return;
-                        }
+        <>
+            <GeneralScreenContainer>
+                <CustomKeyboardAvoidingView>
+                    <ScreenIconText
+                        label='Enter your credentials'
+                        labelStyle={styles.iconTextLabel}
+                        containerStyle={styles.iconTextContainer}
+                        iconComponent={<CredentialsIcon />}
+                    />
+                    <Form
+                        type='SignUp'
+                        onSignUp={async ({ name, email, password }) => {
+                            if (!name) {
+                                setError({
+                                    message: 'Please, enter a name',
+                                    state: true,
+                                });
+                                return;
+                            }
 
-                        if (!email) {
-                            setError({
-                                message: 'Please, enter an email',
-                                state: true,
-                            });
-                            return;
-                        }
+                            if (!email) {
+                                setError({
+                                    message: 'Please, enter an email',
+                                    state: true,
+                                });
+                                return;
+                            }
 
-                        if (!password) {
-                            setError({
-                                message: 'Please, enter a password',
-                                state: true,
-                            });
-                            return;
-                        }
+                            if (!password) {
+                                setError({
+                                    message: 'Please, enter a password',
+                                    state: true,
+                                });
+                                return;
+                            }
 
-                        setIsLoading(true);
-                        try {
-                            const userCredentials = await signUp(
-                                email,
-                                password
-                            );
+                            setIsLoading(true);
+                            try {
+                                const userCredentials = await signUp(
+                                    email,
+                                    password
+                                );
 
-                            dispatch({
-                                type: 'SET_USER',
-                                user: { email, id: userCredentials.user.uid },
-                            });
-                            props.navigation.replace('CreateRoom');
-                        } catch (e: any) {
-                            switch (e.code) {
-                                case 'auth/invalid-email': {
-                                    setError({
-                                        message: 'Please, enter a valid email',
-                                        state: true,
-                                    });
-                                    break;
-                                }
-                                case 'auth/email-already-in-use': {
-                                    setError({
-                                        message:
-                                            'Please, enter another email. This email is already in use',
-                                        state: true,
-                                    });
-                                    break;
-                                }
-                                case 'auth/weak-password': {
-                                    setError({
-                                        message:
-                                            'Please, enter a stronger password',
-                                        state: true,
-                                    });
-                                    break;
-                                }
-                                case 'auth/too-many-requests': {
-                                    setError({
-                                        message:
-                                            'Too many attempts. Please try again later',
-                                        state: true,
-                                    });
-                                    break;
-                                }
-                                default: {
-                                    console.log(JSON.stringify(e));
-                                    setError({
-                                        message: 'Error while signing up',
-                                        state: true,
-                                    });
+                                dispatch({
+                                    type: 'SET_USER',
+                                    user: {
+                                        email,
+                                        id: userCredentials.user.uid,
+                                    },
+                                });
+                                props.navigation.replace('CreateRoom');
+                            } catch (e: any) {
+                                switch (e.code) {
+                                    case 'auth/invalid-email': {
+                                        setError({
+                                            message:
+                                                'Please, enter a valid email',
+                                            state: true,
+                                        });
+                                        break;
+                                    }
+                                    case 'auth/email-already-in-use': {
+                                        setError({
+                                            message:
+                                                'Please, enter another email. This email is already in use',
+                                            state: true,
+                                        });
+                                        break;
+                                    }
+                                    case 'auth/weak-password': {
+                                        setError({
+                                            message:
+                                                'Please, enter a stronger password',
+                                            state: true,
+                                        });
+                                        break;
+                                    }
+                                    case 'auth/too-many-requests': {
+                                        setError({
+                                            message:
+                                                'Too many attempts. Please try again later',
+                                            state: true,
+                                        });
+                                        break;
+                                    }
+                                    default: {
+                                        console.log(JSON.stringify(e));
+                                        setError({
+                                            message: 'Error while signing up',
+                                            state: true,
+                                        });
+                                    }
                                 }
                             }
-                        }
-                        setIsLoading(false);
-                    }}
-                />
-            </CustomKeyboardAvoidingView>
+                            setIsLoading(false);
+                        }}
+                    />
+                </CustomKeyboardAvoidingView>
+                {error.state ? (
+                    <Error
+                        message={error.message}
+                        onPress={() => setError({ state: false, message: '' })}
+                        style={styles.error}
+                    />
+                ) : null}
+            </GeneralScreenContainer>
             {isLoading ? <Loading /> : null}
-            {error.state ? (
-                <Error
-                    message={error.message}
-                    onPress={() => setError({ state: false, message: '' })}
-                />
-            ) : null}
-        </GeneralScreenContainer>
+        </>
     );
 };
 

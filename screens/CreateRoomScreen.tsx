@@ -69,10 +69,10 @@ const CreateRoomScreen = (props: StackScreenCreateRoomProps) => {
                                 props.navigation.replace('BottomTabs');
                             }}
                         />
-                        {loading ? <Loading /> : null}
                     </>
                 ) : null}
             </CustomKeyboardAvoidingView>
+            {loading ? <Loading /> : null}
         </GeneralScreenContainer>
     );
 };
