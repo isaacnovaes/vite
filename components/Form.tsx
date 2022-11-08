@@ -158,7 +158,7 @@ const Form = (props: {
                             ? 'Log in'
                             : props.type === 'SignUp'
                             ? 'Sign up'
-                            : 'Create room'
+                            : 'Start meeting'
                     }
                     onPress={() => {
                         if (props.type === 'LogIn' && props.onLogIn) {
