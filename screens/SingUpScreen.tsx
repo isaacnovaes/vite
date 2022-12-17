@@ -25,6 +25,9 @@ const SingUpScreen = (props: StackScreenSignUpProps) => {
     const { dispatch } = useContext(Context);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState({ state: false, message: '' });
+
+    const resetErrorState = () => setError({ state: false, message: '' });
+
     return (
         <>
             <GeneralScreenContainer>
@@ -127,7 +130,7 @@ const SingUpScreen = (props: StackScreenSignUpProps) => {
                 {error.state ? (
                     <Error
                         message={error.message}
-                        onPress={() => setError({ state: false, message: '' })}
+                        onPress={resetErrorState}
                         style={styles.error}
                     />
                 ) : null}

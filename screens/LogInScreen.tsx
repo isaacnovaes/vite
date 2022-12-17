@@ -26,6 +26,8 @@ const LogInScreen = (props: StackScreenLoginProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState({ state: false, message: '' });
 
+    const resetErrorState = () => setError({ state: false, message: '' });
+
     return (
         <GeneralScreenContainer>
             <CustomKeyboardAvoidingView>
@@ -112,10 +114,7 @@ const LogInScreen = (props: StackScreenLoginProps) => {
             </CustomKeyboardAvoidingView>
             {isLoading ? <Loading /> : null}
             {error.state ? (
-                <Error
-                    message={error.message}
-                    onPress={() => setError({ state: false, message: '' })}
-                />
+                <Error message={error.message} onPress={resetErrorState} />
             ) : null}
         </GeneralScreenContainer>
     );

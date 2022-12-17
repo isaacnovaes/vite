@@ -4,11 +4,20 @@ interface User {
     email: string;
     nickName: string;
     roomId: string;
+    roomOwner: boolean;
 }
 
 type ActionType =
-    | { type: 'SET_USER'; user: Omit<User, 'nickName' | 'roomId'> }
-    | { type: 'ADD_ROOM_INFORMATION'; nickName: string; roomId: string }
+    | {
+          type: 'SET_USER';
+          user: Omit<User, 'nickName' | 'roomId' | 'roomOwner'>;
+      }
+    | {
+          type: 'ADD_ROOM_INFORMATION';
+          nickName: string;
+          roomId: string;
+          existingRoom: boolean;
+      }
     | { type: 'LOG_OUT' };
 
 type StateType = {
@@ -23,7 +32,12 @@ const reducer = (state: StateType, action: ActionType): StateType => {
     switch (action.type) {
         case 'SET_USER': {
             return {
-                user: { ...action.user, nickName: '', roomId: '' },
+                user: {
+                    ...action.user,
+                    nickName: '',
+                    roomId: '',
+                    roomOwner: false,
+                },
             };
         }
         case 'ADD_ROOM_INFORMATION': {
@@ -33,6 +47,7 @@ const reducer = (state: StateType, action: ActionType): StateType => {
                     ...state.user,
                     nickName: action.nickName,
                     roomId: action.roomId,
+                    roomOwner: !action.existingRoom,
                 },
             };
         }

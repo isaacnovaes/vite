@@ -122,17 +122,19 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                     <VerticalEllipsis />
                 </Pressable>
             ),
-            headerLeft: () => (
-                <Pressable
-                    style={styles.clearButton}
-                    onPress={() => ref.current?.clearSignature()}
-                    android_ripple={{ color: colors.gray }}
-                >
-                    <Text style={styles.clearButtonText}>Clear</Text>
-                </Pressable>
-            ),
+            headerLeft: () => {
+                return user?.roomOwner ? (
+                    <Pressable
+                        style={styles.clearButton}
+                        onPress={() => ref.current?.clearSignature()}
+                        android_ripple={{ color: colors.gray }}
+                    >
+                        <Text style={styles.clearButtonText}>Clear</Text>
+                    </Pressable>
+                ) : null;
+            },
         });
-    }, [props.navigation]);
+    }, [props.navigation, user?.roomOwner]);
 
     const handleOK = async (signature: string) => {
         if (!user) return;
@@ -148,7 +150,7 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     };
 
     const handleClear = async () => {
-        if (!user) return;
+        if (!user || !user.roomOwner) return;
         try {
             await clearWhiteBoard(user.roomId);
         } catch {
