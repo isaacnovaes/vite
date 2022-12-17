@@ -96,7 +96,7 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
 
     const [data, setData] = useState('signature');
     const [penColor, setPenColor] = useState<PenColors>('black');
-    const [penSize, setPenSize] = useState<PenSize>(1);
+    const [penSize, setPenSize] = useState<PenSize>(0);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
     const screenWidth = Dimensions.get('window').width;
@@ -112,7 +112,7 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                 });
             }
         };
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         props.navigation.setOptions({
@@ -132,7 +132,7 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                 </Pressable>
             ),
         });
-    }, []);
+    }, [props.navigation]);
 
     const handleOK = async (signature: string) => {
         if (!user) return;
@@ -208,19 +208,19 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                             </Text>
                             <View style={styles.penSizeContainer}>
                                 <PenSizeButton
-                                    onPress={() => setPenSize(1)}
+                                    onPress={() => setPenSize(0)}
                                     penSize={penSize}
-                                    size={1}
+                                    size={0}
                                 />
                                 <PenSizeButton
-                                    onPress={() => setPenSize(3)}
+                                    onPress={() => setPenSize(2)}
                                     penSize={penSize}
-                                    size={3}
+                                    size={2}
                                 />
                                 <PenSizeButton
-                                    onPress={() => setPenSize(6)}
+                                    onPress={() => setPenSize(4)}
                                     penSize={penSize}
-                                    size={6}
+                                    size={4}
                                 />
                             </View>
                             <Pressable
@@ -239,6 +239,7 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                         onEnd={handleEnd}
                         onClear={handleClear}
                         minWidth={penSize}
+                        maxWidth={penSize + 2}
                         imageType='image/png'
                         dataURL={data}
                         penColor={penColor}

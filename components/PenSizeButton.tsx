@@ -24,9 +24,9 @@ const PenSizeButton = (props: {
     size: PenSize;
 }) => {
     const sizes: Record<PenSize, 'Small' | 'Medium' | 'Big'> = {
-        1: 'Small',
-        3: 'Medium',
-        6: 'Big',
+        0: 'Small',
+        2: 'Medium',
+        4: 'Big',
     };
 
     return (
