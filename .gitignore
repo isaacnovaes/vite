@@ -66,5 +66,6 @@ buck-out/
 .vscode
 yarn.lock
 
-# Firebase sensitive info
+# Sensitive info
 /firebase/app.ts
+/Constants/video.ts

@@ -1,6 +1,7 @@
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    signOut,
 } from 'firebase/auth';
 
 import { ref, set, get, update, child, onValue } from 'firebase/database';
@@ -77,12 +78,17 @@ export const clearWhiteBoard = (roomId: string) => {
 
 // log off
 
-export const logOff = async (roomId: string) => {
+export const logOff = async (roomId: string, isOwner: boolean) => {
     const updates: Record<string, null> = {};
 
     updates['/roomsIds/' + roomId] = null;
     updates['/rooms/' + roomId] = null;
     updates['/whiteboards/' + roomId] = null;
 
-    return update(ref(database), updates);
+    if (isOwner) {
+        await update(ref(database), updates);
+    }
+    await signOut(auth);
+
+    return;
 };
