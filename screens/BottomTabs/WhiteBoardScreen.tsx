@@ -20,10 +20,11 @@ import { PenColors, PenSize } from '../../types/Common';
 import PenSizeButton from '../../components/PenSizeButton';
 import {
     updateWhiteBoard,
-    readWhiteBoard,
     clearWhiteBoard,
 } from '../../firebase/helperFunctions';
 import { Context } from '../../context/ContextProvider';
+import { ref as databaseRef, onValue, off } from 'firebase/database';
+import { database } from '../../firebase/app';
 
 const styles = StyleSheet.create({
     signatureScreen: {
@@ -103,15 +104,14 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     const screenHeight = Dimensions.get('window').height;
 
     useEffect(() => {
-        return () => {
-            if (user) {
-                readWhiteBoard(user.roomId, (newSignature) => {
-                    if (newSignature !== null) {
-                        setData(newSignature);
-                    }
-                });
-            }
-        };
+        const whiteboard = databaseRef(
+            database,
+            '/whiteboards/' + `${user ? user.roomId : ''}`
+        );
+
+        onValue(whiteboard, (snapshot) => setData(snapshot.val()));
+
+        return () => off(whiteboard);
     }, [user]);
 
     useEffect(() => {

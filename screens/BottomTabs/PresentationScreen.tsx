@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Dimensions, StyleSheet, View, Text, Pressable } from 'react-native';
 import DocumentPicker, {
     DocumentPickerResponse,
@@ -10,6 +10,17 @@ import GeneralScreenContainer from '../../components/GeneralScreenContainer';
 import Button from '../../components/UI/Button';
 import { colors } from '../../Constants/colors';
 import { Context } from '../../context/ContextProvider';
+import {
+    updateDatabaseFile,
+    updateDatabaseFilePage,
+    uploadFile,
+} from '../../firebase/storageHelpers';
+import { database } from '../../firebase/app';
+import { ref as databaseRef, onValue, off } from 'firebase/database';
+
+// TODO Handle loading state
+// TODO Handle remove file
+// TODO Handle log out
 
 const styles = StyleSheet.create({
     container: {
@@ -54,22 +65,25 @@ const VideoSharingScreen = () => {
         DocumentPickerResponse | undefined | null
     >();
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [audienceFile, setAudienceFile] = useState<{
+        name: string;
+        file: string;
+        page: number;
+    }>({
+        file: '',
+        name: '',
+        page: 1,
+    });
 
     const {
         state: { user },
     } = useContext(Context);
-
-    if (!user) {
-        return null;
-    }
 
     const removeFileExtension = (fileName: string | null) =>
         fileName ? fileName.slice(0, -4) : '';
 
     const resetFile = () => {
         setFile(null);
-        setCurrentPage(1);
     };
 
     const handleError = (err: unknown) => {
@@ -86,63 +100,115 @@ const VideoSharingScreen = () => {
         }
     };
 
+    useEffect(() => {
+        const databaseFile = databaseRef(
+            database,
+            '/presentations/' + `${user ? user.roomId : ''}`
+        );
+
+        onValue(databaseFile, (snapshot) => {
+            const newFile = snapshot.val() as {
+                name: string;
+                file: string;
+                page: number;
+            };
+            setAudienceFile(newFile);
+        });
+        return () => off(databaseFile);
+    }, [user]);
+
+    if (!user) {
+        return null;
+    }
+
     return (
-        <GeneralScreenContainer viewStyle={{ padding: file ? 0 : 20 }}>
+        <GeneralScreenContainer
+            viewStyle={{ padding: file || audienceFile.file ? 0 : 20 }}
+        >
             <View style={styles.container}>
-                {file ? (
+                {file && user.roomOwner ? (
                     <>
                         <View style={styles.fileDescriptionContainer}>
                             <Text style={[styles.text, styles.fileName]}>
                                 {removeFileExtension(file.name)}
                             </Text>
-                            {user.roomOwner ? (
-                                <Pressable onPress={resetFile}>
-                                    <View style={styles.removeFileContainer}>
-                                        <Text style={[styles.text]}>
-                                            Remove file
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            ) : null}
+                            <Pressable onPress={resetFile}>
+                                <View style={styles.removeFileContainer}>
+                                    <Text style={[styles.text]}>
+                                        Remove file
+                                    </Text>
+                                </View>
+                            </Pressable>
                         </View>
-                        {user.roomOwner ? (
-                            <Pdf
-                                source={{ uri: file.uri }}
-                                onPageChanged={(page) => setCurrentPage(page)} // TODO Update database when room owner changes page
-                                onError={(error) => {
-                                    console.log(error);
-                                }}
-                                style={styles.pdf}
-                            />
-                        ) : (
-                            <Pdf
-                                source={{ uri: file.uri }}
-                                onError={(error) => {
-                                    console.log(error);
-                                }}
-                                style={styles.pdf}
-                                page={currentPage} // TODO Update file page for audience when room owner changes page
-                            />
-                        )}
+                        <Pdf
+                            source={{ uri: file.uri }}
+                            onPageChanged={async (page) => {
+                                await updateDatabaseFilePage(user.roomId, page);
+                            }}
+                            onError={(error) => {
+                                console.log(error);
+                            }}
+                            style={styles.pdf}
+                        />
                     </>
-                ) : (
+                ) : null}
+                {audienceFile.file && !user.roomOwner ? (
+                    <>
+                        <Text style={[styles.text, styles.fileName]}>
+                            {removeFileExtension(audienceFile.name)}
+                        </Text>
+                        <Pdf
+                            source={{
+                                uri: audienceFile.file,
+                            }}
+                            onError={(error) => {
+                                console.log(error);
+                            }}
+                            style={styles.pdf}
+                            trustAllCerts={false}
+                            // TODO Check if audience file page change is worth it
+                            // page={audienceFile.page}
+                        />
+                    </>
+                ) : null}
+                {!file && user.roomOwner ? (
                     <View style={styles.chooseFileContainer}>
-                        {user.roomOwner ? (
-                            <Button
-                                label='Choose a file'
-                                onPress={() => {
-                                    DocumentPicker.pick({
-                                        type: types.pdf,
+                        <Button
+                            label='Choose a file'
+                            onPress={() => {
+                                DocumentPicker.pick({
+                                    type: types.pdf,
+                                })
+                                    .then(async (files) => {
+                                        const localFile = files[0];
+                                        const response = await fetch(
+                                            localFile.uri
+                                        );
+                                        const blob = await response.blob();
+                                        const fileName =
+                                            files[0].name || 'presentation';
+                                        const downloadURL = await uploadFile(
+                                            user.roomId,
+                                            blob,
+                                            fileName
+                                        );
+                                        await updateDatabaseFile(
+                                            user.roomId,
+                                            downloadURL,
+                                            fileName
+                                        );
+                                        setFile(files[0]);
                                     })
-                                        .then((files) => setFile(files[0])) // TODO: Upload room owner's file
-                                        .catch(handleError);
-                                }}
-                            />
-                        ) : (
-                            <Text style={styles.text}>No file uploaded</Text>
-                        )}
+                                    .catch(handleError);
+                            }}
+                        />
                     </View>
-                )}
+                ) : null}
+                {!audienceFile.file && !user.roomOwner ? (
+                    <View style={styles.chooseFileContainer}>
+                        <Text style={styles.text}>No file uploaded</Text>
+                    </View>
+                ) : null}
             </View>
         </GeneralScreenContainer>
     );
