@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { Dimensions, StyleSheet, View, Text, Pressable } from 'react-native';
 import DocumentPicker, {
     DocumentPickerResponse,
@@ -11,15 +11,15 @@ import Button from '../../components/UI/Button';
 import { colors } from '../../Constants/colors';
 import { Context } from '../../context/ContextProvider';
 import {
+    removeDatabaseFile,
     updateDatabaseFile,
     updateDatabaseFilePage,
     uploadFile,
 } from '../../firebase/storageHelpers';
 import { database } from '../../firebase/app';
 import { ref as databaseRef, onValue, off } from 'firebase/database';
+import Loading from '../../components/Loading';
 
-// TODO Handle loading state
-// TODO Handle remove file
 // TODO Handle log out
 
 const styles = StyleSheet.create({
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     removeFileContainer: {
         borderWidth: 1,
         borderColor: colors.green,
-        width: 70,
+        width: 90,
         alignItems: 'center',
         borderRadius: 5,
     },
@@ -65,6 +65,8 @@ const VideoSharingScreen = () => {
         DocumentPickerResponse | undefined | null
     >();
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const [audienceFile, setAudienceFile] = useState<{
         name: string;
         file: string;
@@ -75,6 +77,8 @@ const VideoSharingScreen = () => {
         page: 1,
     });
 
+    const audiencePdfRef = useRef<Pdf | null>(null);
+
     const {
         state: { user },
     } = useContext(Context);
@@ -84,6 +88,9 @@ const VideoSharingScreen = () => {
 
     const resetFile = () => {
         setFile(null);
+        if (user) {
+            removeDatabaseFile(user?.roomId);
+        }
     };
 
     const handleError = (err: unknown) => {
@@ -100,26 +107,47 @@ const VideoSharingScreen = () => {
         }
     };
 
+    // room owner file upload listener
     useEffect(() => {
         const databaseFile = databaseRef(
             database,
             '/presentations/' + `${user ? user.roomId : ''}`
         );
-
-        onValue(databaseFile, (snapshot) => {
-            const newFile = snapshot.val() as {
-                name: string;
-                file: string;
-                page: number;
-            };
-            setAudienceFile(newFile);
-        });
+        if (!user?.roomOwner) {
+            onValue(databaseFile, (snapshot) => {
+                const newFile = snapshot.val() as {
+                    name: string;
+                    file: string;
+                    page: number;
+                };
+                setAudienceFile(newFile);
+            });
+        }
         return () => off(databaseFile);
+    }, [user]);
+
+    // room owner file page listener
+    useEffect(() => {
+        const databaseFilePage = databaseRef(
+            database,
+            '/presentations/' + `${user ? user.roomId : ''}` + '/page'
+        );
+        if (!user?.roomOwner) {
+            onValue(databaseFilePage, (snapshot) => {
+                const newPage = snapshot.val() as number;
+                if (audiencePdfRef.current) {
+                    audiencePdfRef.current.setPage(newPage);
+                }
+            });
+        }
+        return () => off(databaseFilePage);
     }, [user]);
 
     if (!user) {
         return null;
     }
+
+    console.log(isLoading);
 
     return (
         <GeneralScreenContainer
@@ -154,10 +182,25 @@ const VideoSharingScreen = () => {
                 ) : null}
                 {audienceFile.file && !user.roomOwner ? (
                     <>
-                        <Text style={[styles.text, styles.fileName]}>
+                        <Text
+                            style={[
+                                styles.text,
+                                styles.fileName,
+                                {
+                                    textAlign: 'center',
+                                    width: '100%',
+                                    marginVertical: 10,
+                                },
+                            ]}
+                        >
                             {removeFileExtension(audienceFile.name)}
                         </Text>
                         <Pdf
+                            ref={(pdf) => {
+                                if (pdf) {
+                                    audiencePdfRef.current = pdf;
+                                }
+                            }}
                             source={{
                                 uri: audienceFile.file,
                             }}
@@ -166,8 +209,6 @@ const VideoSharingScreen = () => {
                             }}
                             style={styles.pdf}
                             trustAllCerts={false}
-                            // TODO Check if audience file page change is worth it
-                            // page={audienceFile.page}
                         />
                     </>
                 ) : null}
@@ -180,6 +221,7 @@ const VideoSharingScreen = () => {
                                     type: types.pdf,
                                 })
                                     .then(async (files) => {
+                                        setIsLoading(true);
                                         const localFile = files[0];
                                         const response = await fetch(
                                             localFile.uri
@@ -198,6 +240,7 @@ const VideoSharingScreen = () => {
                                             fileName
                                         );
                                         setFile(files[0]);
+                                        setIsLoading(false);
                                     })
                                     .catch(handleError);
                             }}
@@ -210,6 +253,11 @@ const VideoSharingScreen = () => {
                     </View>
                 ) : null}
             </View>
+            {isLoading ? (
+                <Loading
+                    loadingStyle={{ backgroundColor: colors.foreground }}
+                />
+            ) : null}
         </GeneralScreenContainer>
     );
 };

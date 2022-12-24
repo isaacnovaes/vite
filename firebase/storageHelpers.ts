@@ -4,7 +4,7 @@ import {
     uploadBytes,
     getDownloadURL,
 } from 'firebase/storage';
-import { ref as databaseRef, set, onValue, update } from 'firebase/database';
+import { ref as databaseRef, set, update } from 'firebase/database';
 
 export const uploadFile = async (
     roomId: string,
@@ -30,29 +30,19 @@ export const updateDatabaseFile = (
     return update(databaseRef(database), updates);
 };
 
-export const readDatabaseFile = (
-    roomId: string,
-    updateUICallback: (newData: {
-        name: string;
-        file: string;
-        page: number;
-    }) => void
-) => {
-    const databaseFile = databaseRef(database, '/presentations/' + roomId);
-
-    return onValue(databaseFile, (snapshot) => {
-        const newFile = snapshot.val() as {
-            name: string;
-            file: string;
-            page: number;
-        };
-        updateUICallback(newFile);
-    });
-};
-
 export const updateDatabaseFilePage = (roomId: string, filePage: number) => {
     return set(
         databaseRef(database, '/presentations/' + roomId + '/page'),
         filePage
     );
+};
+
+export const removeDatabaseFile = (roomId: string) => {
+    const updates: Record<string, string | number> = {};
+
+    updates['/presentations/' + roomId + '/file'] = '';
+    updates['/presentations/' + roomId + '/name'] = '';
+    updates['/presentations/' + roomId + '/page'] = 1;
+
+    return update(databaseRef(database), updates);
 };

@@ -1,4 +1,10 @@
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+    View,
+    StyleSheet,
+    ActivityIndicator,
+    StyleProp,
+    ViewStyle,
+} from 'react-native';
 import { colors } from '../Constants/colors';
 
 const styles = StyleSheet.create({
@@ -14,9 +20,9 @@ const styles = StyleSheet.create({
     },
 });
 
-const Loading = () => {
+const Loading = (props: { loadingStyle?: StyleProp<ViewStyle> }) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, props.loadingStyle]}>
             <ActivityIndicator size={'large'} color={colors.green} />
         </View>
     );
