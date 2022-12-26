@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useRef } from 'react';
+import { useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Dimensions, StyleSheet, View, Text, Pressable } from 'react-native';
 import DocumentPicker, {
     DocumentPickerResponse,
@@ -19,6 +19,7 @@ import {
 import { database } from '../../firebase/app';
 import { ref as databaseRef, onValue, off } from 'firebase/database';
 import Loading from '../../components/Loading';
+import { BottomTabPresentationProps } from '../../types/navigation';
 
 // TODO Handle log out
 
@@ -31,13 +32,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    removeFileContainer: {
-        borderWidth: 1,
-        borderColor: colors.green,
-        width: 90,
-        alignItems: 'center',
-        borderRadius: 5,
-    },
+
     fileDescriptionContainer: {
         height: 40,
         justifyContent: 'space-around',
@@ -52,6 +47,17 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderRadius: 5,
     },
+    removeFileButton: {
+        backgroundColor: colors.green,
+        width: 90,
+        marginLeft: 20,
+        paddingVertical: 5,
+        borderRadius: 10,
+    },
+    removeFileText: {
+        color: colors.darkText,
+        textAlign: 'center',
+    },
     text: {
         color: colors.green,
     },
@@ -60,11 +66,12 @@ const styles = StyleSheet.create({
     },
 });
 
-const VideoSharingScreen = () => {
+const PresentationScreen = (props: BottomTabPresentationProps) => {
     const [file, setFile] = useState<
         DocumentPickerResponse | undefined | null
     >();
 
+    const [ownerFilePageNumber, setOwnerFilePageNumber] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
 
     const [audienceFile, setAudienceFile] = useState<{
@@ -86,12 +93,13 @@ const VideoSharingScreen = () => {
     const removeFileExtension = (fileName: string | null) =>
         fileName ? fileName.slice(0, -4) : '';
 
-    const resetFile = () => {
+    const resetFile = useCallback(() => {
         setFile(null);
+        setOwnerFilePageNumber(1);
         if (user) {
             removeDatabaseFile(user?.roomId);
         }
-    };
+    }, [user]);
 
     const handleError = (err: unknown) => {
         if (DocumentPicker.isCancel(err)) {
@@ -106,6 +114,23 @@ const VideoSharingScreen = () => {
             throw err;
         }
     };
+
+    useEffect(() => {
+        props.navigation.setOptions({
+            // eslint-disable-next-line react/no-unstable-nested-components
+            headerLeft: () => {
+                return user?.roomOwner && file?.uri ? (
+                    <Pressable
+                        onPress={resetFile}
+                        android_ripple={{ color: colors.gray }}
+                        style={styles.removeFileButton}
+                    >
+                        <Text style={styles.removeFileText}>Remove file</Text>
+                    </Pressable>
+                ) : null;
+            },
+        });
+    }, [file?.uri, props.navigation, resetFile, user?.roomOwner]);
 
     // room owner file upload listener
     useEffect(() => {
@@ -147,10 +172,9 @@ const VideoSharingScreen = () => {
         return null;
     }
 
-    console.log(isLoading);
-
     return (
         <GeneralScreenContainer
+            // eslint-disable-next-line react-native/no-inline-styles
             viewStyle={{ padding: file || audienceFile.file ? 0 : 20 }}
         >
             <View style={styles.container}>
@@ -160,18 +184,15 @@ const VideoSharingScreen = () => {
                             <Text style={[styles.text, styles.fileName]}>
                                 {removeFileExtension(file.name)}
                             </Text>
-                            <Pressable onPress={resetFile}>
-                                <View style={styles.removeFileContainer}>
-                                    <Text style={[styles.text]}>
-                                        Remove file
-                                    </Text>
-                                </View>
-                            </Pressable>
+                            <Text style={{ color: colors.green }}>
+                                {`Page ${ownerFilePageNumber}`}
+                            </Text>
                         </View>
                         <Pdf
                             source={{ uri: file.uri }}
                             onPageChanged={async (page) => {
                                 await updateDatabaseFilePage(user.roomId, page);
+                                setOwnerFilePageNumber(page);
                             }}
                             onError={(error) => {
                                 console.log(error);
@@ -182,19 +203,14 @@ const VideoSharingScreen = () => {
                 ) : null}
                 {audienceFile.file && !user.roomOwner ? (
                     <>
-                        <Text
-                            style={[
-                                styles.text,
-                                styles.fileName,
-                                {
-                                    textAlign: 'center',
-                                    width: '100%',
-                                    marginVertical: 10,
-                                },
-                            ]}
-                        >
-                            {removeFileExtension(audienceFile.name)}
-                        </Text>
+                        <View style={styles.fileDescriptionContainer}>
+                            <Text style={[styles.text, styles.fileName]}>
+                                {removeFileExtension(audienceFile.name)}
+                            </Text>
+                            <Text style={{ color: colors.green }}>
+                                {`Page ${audienceFile.page}`}
+                            </Text>
+                        </View>
                         <Pdf
                             ref={(pdf) => {
                                 if (pdf) {
@@ -228,7 +244,7 @@ const VideoSharingScreen = () => {
                                         );
                                         const blob = await response.blob();
                                         const fileName =
-                                            files[0].name || 'presentation';
+                                            localFile.name || 'presentation';
                                         const downloadURL = await uploadFile(
                                             user.roomId,
                                             blob,
@@ -239,7 +255,7 @@ const VideoSharingScreen = () => {
                                             downloadURL,
                                             fileName
                                         );
-                                        setFile(files[0]);
+                                        setFile(localFile);
                                         setIsLoading(false);
                                     })
                                     .catch(handleError);
@@ -261,4 +277,4 @@ const VideoSharingScreen = () => {
         </GeneralScreenContainer>
     );
 };
-export default VideoSharingScreen;
+export default PresentationScreen;

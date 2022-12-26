@@ -66,14 +66,15 @@ export const clearWhiteBoard = (roomId: string) => {
 
 // log off
 
-export const logOff = async (roomId: string, isOwner: boolean) => {
+export const logOff = async (roomId: string, isRoomOwner: boolean) => {
     const updates: Record<string, null> = {};
 
     updates['/roomsIds/' + roomId] = null;
     updates['/rooms/' + roomId] = null;
     updates['/whiteboards/' + roomId] = null;
+    updates['/presentations/' + roomId] = null;
 
-    if (isOwner) {
+    if (isRoomOwner) {
         await update(ref(database), updates);
     }
     await signOut(auth);
