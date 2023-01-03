@@ -26,16 +26,14 @@ const VideoShare = () => {
 
     const connectionData: ConnectionData = {
         appId,
-        channel: user.roomId,
-        username: user.nickName,
         rtcToken,
+        channel: user.roomId,
     };
     const rtcCallbacks: RTCCallbacks = {
         EndCall: () => setVideoCall(false),
     };
 
     const settings: Settings = {
-        displayUsername: true,
         initialDualStreamMode: DualStreamMode.DYNAMIC,
     };
 
