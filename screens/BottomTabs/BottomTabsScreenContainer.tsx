@@ -63,7 +63,6 @@ const BottomTabsScreenContainer = () => {
             <BottomTabs.Screen
                 name='VideoSharing'
                 component={VideoSharingScreen}
-                options={{ title: 'Video Sharing' }}
             />
             <BottomTabs.Screen name='WhiteBoard' component={WhiteBoardScreen} />
         </BottomTabs.Navigator>

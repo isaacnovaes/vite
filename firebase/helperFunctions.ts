@@ -64,20 +64,29 @@ export const clearWhiteBoard = (roomId: string) => {
     return set(ref(database, '/whiteboards/' + roomId), '');
 };
 
-// log off
+// leave room
 
-export const logOff = async (roomId: string, isRoomOwner: boolean) => {
+export const leaveRoom = async (
+    roomId: string,
+    userId: string,
+    isRoomOwner: boolean
+) => {
     const updates: Record<string, null> = {};
 
-    updates['/roomsIds/' + roomId] = null;
-    updates['/rooms/' + roomId] = null;
-    updates['/whiteboards/' + roomId] = null;
-    updates['/presentations/' + roomId] = null;
-
     if (isRoomOwner) {
-        await update(ref(database), updates);
+        updates['/roomsIds/' + roomId] = null;
+        updates['/rooms/' + roomId] = null;
+        updates['/whiteboards/' + roomId] = null;
+        updates['/presentations/' + roomId] = null;
+    } else {
+        updates['/rooms/' + roomId + '/members/' + userId] = null;
     }
-    await signOut(auth);
 
-    return;
+    return update(ref(database), updates);
+};
+
+// log off
+
+export const logOff = async () => {
+    return signOut(auth);
 };

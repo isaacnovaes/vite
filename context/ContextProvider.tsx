@@ -5,6 +5,7 @@ interface User {
     nickName: string;
     roomId: string;
     roomOwner: boolean;
+    isLeaveRoom: boolean;
 }
 
 type ActionType =
@@ -18,6 +19,7 @@ type ActionType =
           roomId: string;
           existingRoom: boolean;
       }
+    | { type: 'LEAVE_ROOM'; option: boolean }
     | { type: 'LOG_OUT' };
 
 type StateType = {
@@ -49,6 +51,21 @@ const reducer = (state: StateType, action: ActionType): StateType => {
                     roomId: action.roomId,
                     roomOwner: !action.existingRoom,
                 },
+            };
+        }
+        case 'LEAVE_ROOM': {
+            if (state.user === null) return state;
+            return {
+                user: {
+                    ...state.user,
+                    isLeaveRoom: action.option,
+                },
+            };
+        }
+        case 'LOG_OUT': {
+            if (state.user === null) return state;
+            return {
+                user: null,
             };
         }
         default:

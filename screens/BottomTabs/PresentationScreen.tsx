@@ -66,6 +66,12 @@ const styles = StyleSheet.create({
     },
 });
 
+const initialAudienceFileState = {
+    file: '',
+    name: '',
+    page: 1,
+};
+
 const PresentationScreen = (props: BottomTabPresentationProps) => {
     const [file, setFile] = useState<
         DocumentPickerResponse | undefined | null
@@ -78,11 +84,7 @@ const PresentationScreen = (props: BottomTabPresentationProps) => {
         name: string;
         file: string;
         page: number;
-    }>({
-        file: '',
-        name: '',
-        page: 1,
-    });
+    }>(initialAudienceFileState);
 
     const audiencePdfRef = useRef<Pdf | null>(null);
 
@@ -140,12 +142,14 @@ const PresentationScreen = (props: BottomTabPresentationProps) => {
         );
         if (!user?.roomOwner) {
             onValue(databaseFile, (snapshot) => {
-                const newFile = snapshot.val() as {
-                    name: string;
-                    file: string;
-                    page: number;
-                };
-                setAudienceFile(newFile);
+                if (snapshot.exists()) {
+                    const newFile = snapshot.val() as {
+                        name: string;
+                        file: string;
+                        page: number;
+                    };
+                    setAudienceFile(newFile);
+                }
             });
         }
         return () => off(databaseFile);
@@ -159,9 +163,11 @@ const PresentationScreen = (props: BottomTabPresentationProps) => {
         );
         if (!user?.roomOwner) {
             onValue(databaseFilePage, (snapshot) => {
-                const newPage = snapshot.val() as number;
-                if (audiencePdfRef.current) {
-                    audiencePdfRef.current.setPage(newPage);
+                if (snapshot.exists()) {
+                    const newPage = snapshot.val() as number;
+                    if (audiencePdfRef.current) {
+                        audiencePdfRef.current.setPage(newPage);
+                    }
                 }
             });
         }

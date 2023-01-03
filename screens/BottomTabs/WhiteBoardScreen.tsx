@@ -88,6 +88,8 @@ const styles = StyleSheet.create({
     },
 });
 
+const NO_WHITEBOARD_FROM_DATABASE = 'No whiteboard available';
+
 const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     const ref = useRef<SignatureViewRef>(null);
 
@@ -103,13 +105,21 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
 
+    const [audienceOnlyData, setAudienceOnlyData] = useState('');
+
     useEffect(() => {
         const whiteboard = databaseRef(
             database,
             '/whiteboards/' + `${user ? user.roomId : ''}`
         );
 
-        onValue(whiteboard, (snapshot) => setData(snapshot.val()));
+        onValue(whiteboard, (snapshot) => {
+            if (snapshot.exists()) {
+                setData(snapshot.val());
+            } else {
+                setData(NO_WHITEBOARD_FROM_DATABASE);
+            }
+        });
 
         return () => off(whiteboard);
     }, [user]);
@@ -139,12 +149,15 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
     const handleOK = async (signature: string) => {
         if (!user) return;
         try {
-            await updateWhiteBoard(user.roomId, signature);
+            if (data !== NO_WHITEBOARD_FROM_DATABASE) {
+                await updateWhiteBoard(user.roomId, signature);
+            } else {
+                setAudienceOnlyData(signature);
+            }
         } catch {
             console.log('error while updating whiteboard');
         }
     };
-
     const handleEnd = () => {
         ref.current?.readSignature();
     };
@@ -243,7 +256,11 @@ const WhiteBoardScreen = (props: BottomTabWhiteBoardProps) => {
                         minWidth={penSize}
                         maxWidth={penSize + 2}
                         imageType='image/png'
-                        dataURL={data}
+                        dataURL={
+                            data !== NO_WHITEBOARD_FROM_DATABASE
+                                ? data
+                                : audienceOnlyData
+                        }
                         penColor={penColor}
                         style={styles.signatureScreen}
                         webStyle={webStyle}
