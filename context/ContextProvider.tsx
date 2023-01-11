@@ -11,7 +11,7 @@ interface User {
 type ActionType =
     | {
           type: 'SET_USER';
-          user: Omit<User, 'nickName' | 'roomId' | 'roomOwner'>;
+          user: Omit<User, 'nickName' | 'roomId' | 'roomOwner' | 'isLeaveRoom'>;
       }
     | {
           type: 'ADD_ROOM_INFORMATION';
@@ -39,6 +39,7 @@ const reducer = (state: StateType, action: ActionType): StateType => {
                     nickName: '',
                     roomId: '',
                     roomOwner: false,
+                    isLeaveRoom: false,
                 },
             };
         }

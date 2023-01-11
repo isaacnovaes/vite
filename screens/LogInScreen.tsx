@@ -40,7 +40,9 @@ const LogInScreen = (props: StackScreenLoginProps) => {
                 <Form
                     type='LogIn'
                     onLogIn={async ({ email, password }) => {
-                        if (!email) {
+                        const formEmail = email.trim();
+                        const formPassword = password.trim();
+                        if (!formEmail) {
                             setError({
                                 message: 'Please, enter an email',
                                 state: true,
@@ -48,7 +50,7 @@ const LogInScreen = (props: StackScreenLoginProps) => {
                             return;
                         }
 
-                        if (!password) {
+                        if (!formPassword) {
                             setError({
                                 message: 'Please, enter a password',
                                 state: true,
@@ -59,12 +61,15 @@ const LogInScreen = (props: StackScreenLoginProps) => {
                         setIsLoading(true);
                         try {
                             const userCredentials = await signIn(
-                                email,
-                                password
+                                formEmail,
+                                formPassword
                             );
                             dispatch({
                                 type: 'SET_USER',
-                                user: { email, id: userCredentials.user.uid },
+                                user: {
+                                    email: formEmail,
+                                    id: userCredentials.user.uid,
+                                },
                             });
                             props.navigation.replace('CreateRoom');
                         } catch (e: any) {

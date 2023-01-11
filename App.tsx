@@ -16,9 +16,7 @@ import BottomTabsScreenContainer from './screens/BottomTabs/BottomTabsScreenCont
 import { colors } from './Constants/colors';
 import { ContextProvider } from './context/ContextProvider';
 
-LogBox.ignoreLogs([
-    'Warning: Async Storage has been extracted from react-native core',
-]);
+LogBox.ignoreAllLogs();
 
 const Stack = createNativeStackNavigator<StackScreens>();
 

@@ -41,41 +41,41 @@ const SingUpScreen = (props: StackScreenSignUpProps) => {
                     <Form
                         type='SignUp'
                         onSignUp={async ({ name, email, password }) => {
-                            if (!name) {
+                            const formName = name.trim();
+                            const formEmail = email.trim();
+                            const formPassword = password.trim();
+
+                            if (!formName) {
                                 setError({
                                     message: 'Please, enter a name',
                                     state: true,
                                 });
                                 return;
                             }
-
-                            if (!email) {
+                            if (!formEmail) {
                                 setError({
                                     message: 'Please, enter an email',
                                     state: true,
                                 });
                                 return;
                             }
-
-                            if (!password) {
+                            if (!formPassword) {
                                 setError({
                                     message: 'Please, enter a password',
                                     state: true,
                                 });
                                 return;
                             }
-
                             setIsLoading(true);
                             try {
                                 const userCredentials = await signUp(
-                                    email,
-                                    password
+                                    formEmail,
+                                    formPassword
                                 );
-
                                 dispatch({
                                     type: 'SET_USER',
                                     user: {
-                                        email,
+                                        email: formEmail,
                                         id: userCredentials.user.uid,
                                     },
                                 });

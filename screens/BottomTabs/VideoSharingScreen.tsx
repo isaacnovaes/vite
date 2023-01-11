@@ -92,7 +92,6 @@ const VideoSharingScreen = (props: BottomTabVideoSharingProps) => {
                     </Modal>
                 ) : null}
                 <VideoShare />
-                {/* <Text style={styles.text}>To be done</Text> */}
             </View>
         </GeneralScreenContainer>
     );

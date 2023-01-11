@@ -68,7 +68,6 @@ const Form = (props: {
                         returnKeyType='next'
                         style={styles.input}
                         onChangeText={(text) => {
-                            if (!text) return;
                             setFormState((state) => {
                                 if (props.type === 'SignUp') {
                                     return { ...state, name: text };
@@ -95,7 +94,6 @@ const Form = (props: {
                             returnKeyType='next'
                             style={styles.input}
                             onChangeText={(text) => {
-                                if (!text) return;
                                 setFormState((state) => {
                                     return {
                                         ...state,
@@ -117,7 +115,6 @@ const Form = (props: {
                             secureTextEntry={true}
                             style={styles.input}
                             onChangeText={(text) => {
-                                if (!text) return;
                                 setFormState((state) => {
                                     return {
                                         ...state,
@@ -140,7 +137,6 @@ const Form = (props: {
                         returnKeyType='done'
                         style={styles.input}
                         onChangeText={(text) => {
-                            if (!text) return;
                             setFormState((state) => {
                                 return {
                                     ...state,
@@ -163,21 +159,21 @@ const Form = (props: {
                     onPress={() => {
                         if (props.type === 'LogIn' && props.onLogIn) {
                             props.onLogIn({
-                                email: formState.email,
-                                password: formState.password,
+                                email: formState.email.trim(),
+                                password: formState.password.trim(),
                             });
                         }
                         if (props.type === 'SignUp' && props.onSignUp) {
                             props.onSignUp({
-                                name: formState.name,
-                                email: formState.email,
-                                password: formState.password,
+                                name: formState.name.trim(),
+                                email: formState.email.trim(),
+                                password: formState.password.trim(),
                             });
                         }
                         if (props.type === 'CreateRoom' && props.onCreateRoom) {
                             props.onCreateRoom({
-                                nickName: formState.nickName,
-                                roomId: formState.roomId,
+                                nickName: formState.nickName.trim(),
+                                roomId: formState.roomId.trim(),
                             });
                         }
                     }}

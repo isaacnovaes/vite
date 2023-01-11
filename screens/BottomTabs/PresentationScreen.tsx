@@ -21,8 +21,6 @@ import { ref as databaseRef, onValue, off } from 'firebase/database';
 import Loading from '../../components/Loading';
 import { BottomTabPresentationProps } from '../../types/navigation';
 
-// TODO Handle log out
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
