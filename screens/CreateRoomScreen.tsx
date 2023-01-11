@@ -98,7 +98,7 @@ const CreateRoomScreen = (props: StackScreenCreateRoomProps) => {
                     >
                         <View style={styles.modal}>
                             <Text style={[styles.heading]}>
-                                Do you want to leave log out?
+                                Do you want to log out?
                             </Text>
                             <Button
                                 label='Yes'
@@ -127,7 +127,9 @@ const CreateRoomScreen = (props: StackScreenCreateRoomProps) => {
                         <Form
                             type='CreateRoom'
                             onCreateRoom={async ({ nickName, roomId }) => {
-                                if (!nickName) {
+                                const formNickName = nickName.trim();
+                                const formRoomId = roomId.trim();
+                                if (!formNickName) {
                                     setError({
                                         message: 'Please, enter your nick name',
                                         state: true,
@@ -135,7 +137,7 @@ const CreateRoomScreen = (props: StackScreenCreateRoomProps) => {
                                     return;
                                 }
 
-                                if (!roomId) {
+                                if (!formRoomId) {
                                     setError({
                                         message: 'Please, enter the room id',
                                         state: true,
@@ -143,31 +145,34 @@ const CreateRoomScreen = (props: StackScreenCreateRoomProps) => {
                                     return;
                                 }
 
-                                setLoading(true);
                                 // eslint-disable-next-line no-useless-escape
                                 const forbiddenPattern = /[\.$#\[\]\\]/;
-                                if (
-                                    !roomId ||
-                                    !nickName ||
-                                    forbiddenPattern.test(roomId)
-                                ) {
+                                if (forbiddenPattern.test(formRoomId)) {
+                                    setError({
+                                        message:
+                                            'The room id cannot have the following characters:\n ., $, #, [, ], \\',
+                                        state: true,
+                                    });
                                     return;
                                 }
 
+                                setLoading(true);
                                 // check if room already exists
-                                const existingRoom = await roomExist(roomId);
+                                const existingRoom = await roomExist(
+                                    formRoomId
+                                );
 
                                 await createRoom(
                                     user.id,
-                                    nickName,
-                                    roomId,
+                                    formNickName,
+                                    formRoomId,
                                     !!existingRoom
                                 );
 
                                 dispatch({
                                     type: 'ADD_ROOM_INFORMATION',
-                                    nickName,
-                                    roomId,
+                                    nickName: formNickName,
+                                    roomId: formRoomId,
                                     existingRoom: !!existingRoom,
                                 });
                                 setLoading(false);

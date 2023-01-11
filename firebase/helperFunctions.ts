@@ -26,8 +26,6 @@ export const createRoom = (
     roomId: string,
     existingRoom: boolean
 ) => {
-    // Get key for the room
-
     const updates: Record<string, boolean | string | number> = {};
 
     if (!existingRoom) {
