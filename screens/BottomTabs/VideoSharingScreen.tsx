@@ -46,7 +46,7 @@ const VideoSharingScreen = (props: BottomTabVideoSharingProps) => {
 
     useEffect(() => {
         props.navigation.setOptions({
-            title: 'Video Sharing',
+            title: 'Video Call',
             // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => {
                 return (

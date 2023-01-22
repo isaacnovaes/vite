@@ -48,7 +48,7 @@ export const TutorialStepTwoScreen = (
             <View style={styles.container}>
                 <TutorialCard
                     iconComponent={<VideoIcon />}
-                    heading='Video sharing'
+                    heading='Video Call'
                     text='Share your camera and see others'
                     buttonTitle='Next'
                     onPress={() => {

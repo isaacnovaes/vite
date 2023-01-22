@@ -6,4 +6,4 @@ export const colors = {
     green: '#5ED5A8',
     red: '#DD4B4B',
     white: '#F1F4F6',
-};
+} as const;
